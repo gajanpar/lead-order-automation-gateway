@@ -1,0 +1,35 @@
+services:
+  n8n:
+    image: docker.n8n.io/n8nio/n8n:latest
+    container_name: trend_n8n
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:5678:5678"
+    environment:
+      N8N_HOST: localhost
+      N8N_PORT: 5678
+      N8N_PROTOCOL: http
+      N8N_EDITOR_BASE_URL: http://localhost:5678/
+      N8N_WEBHOOK_URL: http://localhost:5678/
+      GENERIC_TIMEZONE: Asia/Jakarta
+      TZ: Asia/Jakarta
+    volumes:
+      - n8n_data:/home/node/.n8n
+      - ./n8n/workflow_template.json:/workflows/workflow_template.json:ro
+
+  api_gateway:
+    build:
+      context: ./api
+      dockerfile: Dockerfile
+    container_name: trend_fastapi
+    restart: unless-stopped
+    ports:
+      - "127.0.0.1:8000:8000"
+    environment:
+      N8N_WEBHOOK_URL: http://n8n:5678/webhook/lead-ingest
+      ENVIRONMENT: development
+    depends_on:
+      - n8n
+
+volumes:
+  n8n_data:

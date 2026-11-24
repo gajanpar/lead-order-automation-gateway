@@ -1,0 +1,63 @@
+{
+  "name": "Order & Lead Automation Pipeline",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "lead-ingest",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        250,
+        300
+      ],
+      "id": "node-webhook-in",
+      "name": "Webhook Ingest"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Format pesan ringkasan transaksi & notifikasi tim internal\nconst item = $input.first().json.body || $input.first().json;\n\nconst formattedBudget = new Intl.NumberFormat('id-ID', {\n  style: 'currency',\n  currency: 'IDR',\n  maximumFractionDigits: 0\n}).format(item.budget_estimate_idr || 0);\n\nconst notificationText = `🚀 *PROSPEK/ORDER BARU MASUK*\\n` +\n  `----------------------------\\n` +\n  `*ID:* ${item.tracking_id}\\n` +\n  `*Nama:* ${item.customer_name}\\n` +\n  `*WhatsApp:* ${item.customer_whatsapp}\\n` +\n  `*Layanan:* ${item.service_type}\\n` +\n  `*Estimasi Budget:* ${formattedBudget}\\n` +\n  `*Catatan:* ${item.notes}\\n` +\n  `*Waktu:* ${item.created_at}`;\n\nreturn [\n  {\n    json: {\n      ...item,\n      formatted_budget: formattedBudget,\n      telegram_or_wa_message: notificationText\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        480,
+        300
+      ],
+      "id": "node-formatter",
+      "name": "Format Data & Notifikasi"
+    },
+    {
+      "parameters": {
+        "content": "### Pipeline Flow:\n1. Webhook menerima JSON payload dari FastAPI Gateway.\n2. Node Code memvalidasi dan memformat teks notifikasi WhatsApp/Telegram & nominal IDR.\n3. Siap disambungkan ke node Google Sheets / Airtable / WhatsApp Business API."
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        240,
+        140
+      ],
+      "id": "note-doc",
+      "name": "Catatan Arsitektur"
+    }
+  ],
+  "connections": {
+    "Webhook Ingest": {
+      "main": [
+        [
+          {
+            "node": "Format Data & Notifikasi",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  }
+}
