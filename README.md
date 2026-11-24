@@ -1,57 +1,78 @@
+<div align="center">
+
 # Order & Lead Automation Gateway
 
-**A simple starting point for turning incoming orders and customer inquiries into structured, trackable workflow events.**
+### From incoming requests to organized workflows.
 
-Order & Lead Automation Gateway is a small automation project built with **FastAPI** and **n8n**. It receives order or lead information through an API, checks that the data is valid, tidies up selected fields, creates a tracking ID, and sends the event to an n8n webhook.
+A beginner-friendly automation gateway built with **FastAPI**, **n8n**, and **Docker**.
 
-The goal is straightforward: reduce repetitive copy-and-paste work and give incoming requests a more consistent path through your business process.
+[Getting Started](#-getting-started) · [How It Works](#-how-it-works) · [API](#-api-at-a-glance) · [Roadmap](docs/roadmap.md)
 
-> **Project status:** Early-stage showcase / development project. The API-to-n8n handoff and basic data formatting are implemented. External destinations such as Google Sheets, Airtable, Telegram, and WhatsApp Business API are not yet connected in the current workflow template.
+</div>
 
-## What can it do today?
+---
 
-- Accept an order or lead through `POST /api/v1/orders`.
-- Validate required fields using Pydantic.
-- Normalize common Indonesian WhatsApp number formats.
-- Generate a tracking ID and timestamp.
-- Forward the event to an n8n webhook when the workflow service is reachable.
-- Format the incoming data and an IDR budget value in n8n.
-- Provide an API health endpoint and interactive API docs.
+## What is this?
+
+Order & Lead Automation Gateway is a small project that helps route incoming customer orders or inquiries into an automation workflow.
+
+Think of it as a front desk for digital requests:
+
+1. A form or application sends customer information to the API.
+2. The API checks the information and prepares a consistent event.
+3. The event is forwarded to an **n8n** webhook.
+4. n8n can then format the information and, as the project grows, pass it to business tools.
+
+The idea is to reduce repetitive copy-and-paste work and give incoming requests a more predictable path.
+
+> **Project status: Early development.** The current implementation includes the FastAPI endpoint, request validation, and an n8n webhook workflow for data formatting. External integrations such as Google Sheets, Airtable, Telegram, and WhatsApp Business API are planned, not currently connected in the supplied workflow.
+
+## Who is this for?
+
+- **Business owners and operators** who want to understand how order and inquiry automation can work.
+- **Beginners** learning how APIs connect to visual automation tools.
+- **Developers** who want a small FastAPI + n8n project to explore, extend, or contribute to.
+
+## What works today?
+
+| Capability | Status |
+| --- | --- |
+| Receive order/lead data through `POST /api/v1/orders` | Implemented |
+| Validate request fields with Pydantic | Implemented |
+| Normalize common Indonesian WhatsApp number formats | Implemented |
+| Generate a tracking ID and received timestamp | Implemented |
+| Forward event to an n8n webhook | Implemented; check delivery result |
+| Format event data in the n8n workflow | Implemented |
+| Save records to Google Sheets or Airtable | Planned |
+| Send Telegram or WhatsApp notifications | Planned |
+| Authentication, durable retries, and production monitoring | Planned |
 
 ## How it works
 
-```text
-Your form / app / API client
-          |
-          | POST JSON
-          v
-     FastAPI Gateway
-     - validate input
-     - normalize WhatsApp number
-     - create tracking ID
-          |
-          | HTTP webhook
-          v
-       n8n workflow
-       - receive event
-       - format data and message
-          |
-          v
-   Future integrations
-   (Sheets / CRM / messaging)
+```mermaid
+flowchart TD
+    A["Customer form / application"] -->|"POST JSON"| B["FastAPI Gateway"]
+    B --> C["Validate and prepare event"]
+    C -->|"HTTP webhook"| D["n8n workflow"]
+    D --> E["Format order / lead data"]
+    E -.-> F["Future: Google Sheets / CRM"]
+    E -.-> G["Future: Telegram / WhatsApp"]
 ```
 
-FastAPI handles the API-facing work. n8n handles the visual workflow orchestration. Keeping those responsibilities separate makes it easier to change the workflow without rewriting the API.
+FastAPI handles the API request and validation. n8n handles workflow orchestration. Keeping those jobs separate makes it easier to change the automation flow without rebuilding the API.
 
-## Quick start
+## 🚀 Getting started
 
-### Requirements
+### What you need
 
-- Docker Desktop or Docker Engine with the Compose plugin
+- Docker Desktop, or Docker Engine with the Docker Compose plugin
+- Git
 - A terminal
-- A free local port `8000` and `5678`
+- Local ports `8000` and `5678` available
 
-### 1. Get the project
+No Python installation is required for the Docker-based quick start.
+
+### 1. Download the project
 
 ```bash
 git clone https://github.com/gajanpar/lead-order-automation-gateway.git
@@ -64,37 +85,36 @@ cd lead-order-automation-gateway
 docker compose up -d --build
 ```
 
-Check the running containers:
+Check that the containers are running:
 
 ```bash
 docker compose ps
 ```
 
-### 3. Open the local tools
+### 3. Open the local pages
 
-| Service | Address | What it is for |
+| Page | Address | What you'll find |
 | --- | --- | --- |
-| FastAPI docs | http://localhost:8000/docs | Try the API from your browser |
-| API health | http://localhost:8000/health | Check whether the API is responding |
-| n8n | http://localhost:5678 | View and configure the workflow |
+| API documentation | http://localhost:8000/docs | Try the API in your browser |
+| API health check | http://localhost:8000/health | Check whether FastAPI is responding |
+| n8n editor | http://localhost:5678 | View and manage the workflow |
 
-The current Compose file binds both services to `127.0.0.1`, so they are intended for local access from the same machine.
+The provided Compose configuration binds the services to localhost. They are intended for local development, not direct public exposure.
 
-### 4. Import the n8n workflow
+### 4. Import and activate the n8n workflow
 
-The Compose file makes `n8n/workflow_template.json` available inside the n8n container. If it is not already present in your n8n workspace, import it from the n8n editor:
+The workflow file is available at `n8n/workflow_template.json`.
 
-1. Open `http://localhost:5678`.
-2. Use the workflow import option.
-3. Select `n8n/workflow_template.json` from your project folder.
-4. Review the nodes and credentials.
-5. Activate the workflow in n8n before sending requests to the production webhook URL used by the API.
+1. Open the n8n editor at `http://localhost:5678`.
+2. Import `n8n/workflow_template.json` using the workflow import option.
+3. Review the nodes and settings.
+4. Activate the workflow in n8n before testing the production webhook URL configured in the API.
 
-The committed workflow template has `active: false`, so importing it does not automatically make the production webhook ready. The template currently contains a webhook trigger and a formatting Code node. It does not yet write to Google Sheets or send messages.
+Importing a JSON file does not automatically mean the workflow is active. The committed template is inactive (`active: false`).
 
-## Try the API
+## Try sending a sample order
 
-Open `http://localhost:8000/docs`, expand `POST /api/v1/orders`, and use this example:
+Open [http://localhost:8000/docs](http://localhost:8000/docs), find `POST /api/v1/orders`, and use this example:
 
 ```json
 {
@@ -107,7 +127,7 @@ Open `http://localhost:8000/docs`, expand `POST /api/v1/orders`, and use this ex
 }
 ```
 
-You can also send the same request with cURL:
+Or use cURL:
 
 ```bash
 curl -X POST "http://localhost:8000/api/v1/orders" \
@@ -122,64 +142,64 @@ curl -X POST "http://localhost:8000/api/v1/orders" \
   }'
 ```
 
-A successful API response includes a tracking ID and a `forwarded_to_n8n` value. **A successful API response does not guarantee that a downstream workflow or external integration completed successfully.** Check `forwarded_to_n8n` and the n8n execution history.
+The response includes a tracking ID and `forwarded_to_n8n`.
+
+**Important:** an API response with HTTP `201` means the API accepted the request. It does not guarantee that n8n or a future external service completed its work. Check `forwarded_to_n8n` and the n8n execution history.
 
 ## API at a glance
 
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | `GET` | `/health` | Check API availability |
-| `POST` | `/api/v1/orders` | Validate and submit an order or lead |
+| `POST` | `/api/v1/orders` | Submit an order or lead |
 
-For the full request and response details, see [API Reference](docs/api-reference.md).
+For request fields, validation rules, and response details, see the [API Reference](docs/api-reference.md).
 
-## Project structure
+## Project layout
 
 ```text
 .
-├── api/                       # FastAPI application
-├── n8n/                       # n8n workflow template
-├── docs/                      # Project documentation
-├── docker-compose.yml         # Local services
-└── README.md
+├── api/                         # FastAPI application
+├── n8n/                         # n8n workflow template
+├── docs/                        # Detailed project documentation
+├── .github/                     # Issue templates and CI workflow
+├── docker-compose.yml           # Local development services
+├── CONTRIBUTING.md              # How to contribute
+├── CHANGELOG.md                 # Project change history
+└── README.md                    # Project home page
 ```
-
-## Configuration
-
-The API reads `N8N_WEBHOOK_URL` from its environment. In Docker Compose, it points to the n8n service using the internal Docker network:
-
-```text
-http://n8n:5678/webhook/lead-ingest
-```
-
-See [Configuration](docs/configuration.md) before changing ports, webhook addresses, or deployment settings.
 
 ## Documentation
 
-- [Architecture](docs/architecture.md)
-- [API Reference](docs/api-reference.md)
-- [Configuration](docs/configuration.md)
-- [Troubleshooting](docs/troubleshooting.md)
-- [Security Notes](docs/security.md)
-- [Roadmap](docs/roadmap.md)
-- [Contributing](CONTRIBUTING.md)
-- [Changelog](CHANGELOG.md)
+| Guide | What it covers |
+| --- | --- |
+| [Architecture](docs/architecture.md) | Services, request flow, and design decisions |
+| [API Reference](docs/api-reference.md) | Endpoints, request fields, and responses |
+| [Configuration](docs/configuration.md) | Environment variables and Docker networking |
+| [Local Development](docs/development.md) | Development workflow and useful commands |
+| [Testing](docs/testing.md) | Current test status and how to add tests |
+| [Troubleshooting](docs/troubleshooting.md) | Common setup and runtime problems |
+| [Security](SECURITY.md) | Security expectations and vulnerability reporting |
+| [Roadmap](docs/roadmap.md) | Planned improvements |
+| [Contributing](CONTRIBUTING.md) | How to submit changes |
 
 ## Current limitations
 
-This project is still being developed. Before using it for real customer data, keep these points in mind:
+This project is an early-stage starter, not a complete order-management platform. Before using it with real customer data or exposing it to the internet, address the following:
 
-- The current n8n template formats the event but does not connect to external storage or messaging providers.
-- The API can return HTTP `201` even when forwarding to n8n fails; inspect `forwarded_to_n8n`.
-- The current tracking ID implementation should be replaced with a collision-resistant identifier before production use.
-- CORS currently allows all origins and should be restricted to trusted frontend origins.
-- The n8n Docker image currently uses the `latest` tag. Pin a tested version for repeatable deployments.
-- Add authentication, secrets management, tests, logging, retry handling, and monitoring before exposing the service publicly.
+- The supplied n8n workflow formats events but does not currently write to external storage or send messages.
+- API acceptance and downstream delivery are separate outcomes. Inspect `forwarded_to_n8n`.
+- The current tracking ID approach should be replaced with a collision-resistant identifier such as UUID or ULID.
+- CORS currently permits all origins. Restrict it to trusted frontend origins before deployment.
+- The n8n image uses the `latest` tag. Pin a tested version for repeatable deployments.
+- Authentication, durable retries, structured logging, automated tests, and monitoring need further work.
+
+See the [Roadmap](docs/roadmap.md) for a more detailed list.
 
 ## Contributing
 
-Ideas, bug reports, and improvements are welcome. Please read [CONTRIBUTING.md](CONTRIBUTING.md) before opening an issue or pull request.
+Bug reports, documentation fixes, and thoughtful improvements are welcome. Start with [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## License
 
-No license has been confirmed for this repository yet. Until the owner adds a license file, the code should not be assumed to be available for unrestricted reuse.
+No license has been confirmed in this documentation pack. Unless the repository owner adds a license file, do not assume the code is available for unrestricted reuse.
