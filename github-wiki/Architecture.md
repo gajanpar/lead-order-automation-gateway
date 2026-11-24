@@ -5,13 +5,13 @@ This page explains how a request moves through Order & Lead Automation Gateway.
 ## At a glance
 
 ```mermaid
-flowchart TD
-    A["Client / order form"] -->|"POST /api/v1/orders"| B["FastAPI"]
-    B --> C["Pydantic validation"]
-    C --> D["Normalize fields and build event"]
-    D -->|"POST webhook"| E["n8n"]
-    E --> F["Format event data"]
-    F -.-> G["Future destinations"]
+graph TD
+    A[Client / order form] -->|POST /api/v1/orders| B[FastAPI]
+    B --> C[Pydantic validation]
+    C --> D[Normalize fields and build event]
+    D -->|POST webhook| E[n8n]
+    E --> F[Format event data]
+    F -.-> G[Future destinations]
 ```
 
 ## Components

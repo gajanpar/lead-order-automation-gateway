@@ -50,13 +50,13 @@ The idea is to reduce repetitive copy-and-paste work and give incoming requests 
 ## How it works
 
 ```mermaid
-flowchart TD
-    A["Customer form / application"] -->|"POST JSON"| B["FastAPI Gateway"]
-    B --> C["Validate and prepare event"]
-    C -->|"HTTP webhook"| D["n8n workflow"]
-    D --> E["Format order / lead data"]
-    E -.-> F["Future: Google Sheets / CRM"]
-    E -.-> G["Future: Telegram / WhatsApp"]
+graph TD
+    A[Customer form / application] -->|POST JSON| B[FastAPI Gateway]
+    B --> C[Validate and prepare event]
+    C -->|HTTP webhook| D[n8n workflow]
+    D --> E[Format order / lead data]
+    E -.-> F[Future: Google Sheets / CRM]
+    E -.-> G[Future: Telegram / WhatsApp]
 ```
 
 FastAPI handles the API request and validation. n8n handles workflow orchestration. Keeping those jobs separate makes it easier to change the automation flow without rebuilding the API.
@@ -202,4 +202,4 @@ Bug reports, documentation fixes, and thoughtful improvements are welcome. Start
 
 ## License
 
-No license has been confirmed in this documentation pack. Unless the repository owner adds a license file, do not assume the code is available for unrestricted reuse.
+This project is licensed under the [MIT License](LICENSE). You are free to use, modify, and distribute this software with attribution.
