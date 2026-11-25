@@ -43,7 +43,7 @@ Accepts an order or lead submission.
 | --- | --- | --- | --- |
 | `customer_name` | string | Yes | 2–100 characters |
 | `customer_email` | email | Yes | Must be a valid email address |
-| `customer_whatsapp` | string | Yes | 9–18 characters |
+| `customer_whatsapp` | string | Yes | 9–22 characters; accepts `08...`, `62...`, `+62...`, `0062...`, or E.164 `+...` (spaces, hyphens, dots, parentheses are stripped and invalid numbers return `422`) |
 | `service_type` | string | Yes | `custom_software`, `workflow_automation`, or `consultation` |
 | `budget_estimate_idr` | number | Yes | Must be greater than zero |
 | `notes` | string or null | No | Maximum 500 characters |
@@ -82,16 +82,20 @@ The response model includes:
 
 | Field | Meaning |
 | --- | --- |
-| `status` | API-level result |
-| `tracking_id` | Identifier generated for the request |
-| `received_at` | Timestamp recorded by the API |
+| `status` | `"forwarded"` when n8n returned 2xx, or `"accepted_unforwarded"` when downstream delivery failed |
+| `message` | Human-readable summary of API acceptance and forwarding outcome |
+| `tracking_id` | UUIDv4-backed identifier (`ORD-<uuid4>`) generated for the request |
+| `received_at` | UTC ISO-8601 timestamp recorded by the API |
 | `forwarded_to_n8n` | Whether forwarding to n8n was confirmed |
 
 The exact response schema can be inspected in `/docs`.
 
 ### Status-code interpretation
 
-A `201 Created` response indicates that the API accepted the request. It must not be interpreted as proof that an external workflow completed successfully. Check `forwarded_to_n8n` and n8n execution history.
+- **`201 Created` (`status: "forwarded"`)**: The API validated the request and confirmed 2xx delivery to the configured n8n webhook.
+- **`202 Accepted` (`status: "accepted_unforwarded"`)**: The API validated and accepted the request, but forwarding to n8n failed (for example, timeout, unreachable host, or upstream error).
+- **`502 Bad Gateway`**: Returned on webhook delivery failure only when `STRICT_WEBHOOK_DELIVERY=true`.
+- **`422 Unprocessable Entity`**: Validation failed (e.g., invalid email, non-positive budget, or invalid WhatsApp format).
 
 ## Validation errors
 

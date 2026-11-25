@@ -2,7 +2,16 @@
 
 ## Current status
 
-The repository's initial implementation does not yet provide a complete automated test suite. Treat this page as the test plan and contributor guide, not as a claim that tests already pass.
+The repository includes a `pytest` suite (`api/tests/test_orders.py`) covering API validation, Indonesian and E.164 WhatsApp normalization, UUIDv4 tracking ID generation, CORS configuration, and mocked n8n webhook forwarding outcomes (`201`, `202`, and strict `502`).
+
+## Running tests
+
+From the repository root, using a virtual environment with `api/requirements-dev.txt` installed:
+
+```bash
+pip install -r api/requirements-dev.txt
+pytest -v
+```
 
 ## Recommended coverage
 

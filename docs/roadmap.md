@@ -4,11 +4,11 @@ This roadmap describes proposed improvements. An unchecked item is not implement
 
 ## API foundation
 
-- [ ] Replace the current tracking ID generation with UUID or ULID.
-- [ ] Improve phone-number parsing and validation.
-- [ ] Separate API acceptance from downstream delivery status more clearly.
-- [ ] Add structured logs and request correlation IDs.
-- [ ] Add automated API and normalization tests.
+- [x] Replace the current tracking ID generation with UUID or ULID (`ORD-<uuid4>`).
+- [x] Improve phone-number parsing and validation.
+- [x] Separate API acceptance (`202 Accepted`) from downstream delivery confirmation (`201 Created`).
+- [x] Add structured application logging (`logging` with `tracking_id`, without raw PII).
+- [x] Add automated API and normalization tests (`pytest`).
 
 ## Workflow reliability
 
@@ -26,11 +26,11 @@ This roadmap describes proposed improvements. An unchecked item is not implement
 
 ## Security and operations
 
-- [ ] Restrict CORS to trusted origins.
+- [x] Restrict CORS to trusted origins (`CORS_ORIGINS`, credentials disabled for wildcard).
 - [ ] Add API authentication and rate limiting.
-- [ ] Pin tested Docker image versions.
-- [ ] Add container health checks.
-- [ ] Add CI checks for tests and linting.
+- [x] Pin tested Docker image versions (`n8n:2.48.8`).
+- [x] Add container health checks (`api_gateway` Compose health check).
+- [x] Add CI checks for tests and linting (`pytest` in GitHub Actions).
 - [ ] Document production deployment, backup, and recovery.
 
 ## Documentation and community

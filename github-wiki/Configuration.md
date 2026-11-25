@@ -7,6 +7,11 @@ This guide describes the environment configuration used by the local Docker Comp
 | Variable | Service | Purpose |
 | --- | --- | --- |
 | `N8N_WEBHOOK_URL` | FastAPI | Webhook URL used to forward events |
+| `N8N_TIMEOUT_SECONDS` | FastAPI | Timeout in seconds for forwarding events to n8n (default `4.0`) |
+| `STRICT_WEBHOOK_DELIVERY` | FastAPI | Return `502 Bad Gateway` instead of `202 Accepted` when n8n delivery fails (default `false`) |
+| `CORS_ORIGINS` | FastAPI | Comma-separated list of allowed CORS origins |
+| `CORS_ALLOW_CREDENTIALS` | FastAPI | Enable CORS credentials when non-wildcard origins are set (default `false`) |
+| `LOG_LEVEL` | FastAPI | Python logging level (default `INFO`) |
 | `ENVIRONMENT` | FastAPI | Application environment label |
 | `N8N_HOST` | n8n | Hostname configured for n8n |
 | `N8N_PORT` | n8n | n8n port |

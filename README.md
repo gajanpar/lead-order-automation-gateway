@@ -144,7 +144,7 @@ curl -X POST "http://localhost:8000/api/v1/orders" \
 
 The response includes a tracking ID and `forwarded_to_n8n`.
 
-**Important:** an API response with HTTP `201` means the API accepted the request. It does not guarantee that n8n or a future external service completed its work. Check `forwarded_to_n8n` and the n8n execution history.
+**Important:** an API response with HTTP `201` (`status: "forwarded"`) means the event was delivered to the n8n webhook, while HTTP `202` (`status: "accepted_unforwarded"`) means the API validated and accepted the request, but forwarding to n8n failed. Downstream external tools (Google Sheets, CRM, messaging) are still separate steps once connected.
 
 ## API at a glance
 
@@ -188,11 +188,9 @@ For request fields, validation rules, and response details, see the [API Referen
 This project is an early-stage starter, not a complete order-management platform. Before using it with real customer data or exposing it to the internet, address the following:
 
 - The supplied n8n workflow formats events but does not currently write to external storage or send messages.
-- API acceptance and downstream delivery are separate outcomes. Inspect `forwarded_to_n8n`.
-- The current tracking ID approach should be replaced with a collision-resistant identifier such as UUID or ULID.
-- CORS currently permits all origins. Restrict it to trusted frontend origins before deployment.
-- The n8n image uses the `latest` tag. Pin a tested version for repeatable deployments.
-- Authentication, durable retries, structured logging, automated tests, and monitoring need further work.
+- API acceptance (`202` when forwarding fails) and downstream webhook delivery (`201` when n8n accepts) are separate outcomes; there is not yet a durable retry queue or database persistence layer.
+- Authentication, rate limiting, external secrets management, and production monitoring are not yet implemented.
+- Configure `CORS_ORIGINS` explicitly for your deployed frontend domain instead of relying on localhost defaults.
 
 See the [Roadmap](docs/roadmap.md) for a more detailed list.
 
